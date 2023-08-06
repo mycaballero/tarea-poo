@@ -1,6 +1,9 @@
 <script setup>
-import { ref } from 'vue'
-import { Persona, Veiculo } from '../stores/counter'
+import { reactive, ref } from 'vue'
+import {Vehiculo} from '../stores/clases/Vehiculo'
+import {Cotizacion} from '../stores/clases/Cotizacion'
+import {Cliente} from '../stores/clases/Cliente'
+import {Usuario} from '../stores/clases/Usuario'
 
 const listaCotizacion = ref([]);
 const listOptions = ref([
@@ -13,24 +16,26 @@ const model = ref({
   nombre: null,
   apellido: null,
   edad: null,
-  marca: null,
+  pma: null,
   tipo: null,
   matricula: null,
 })
 const agregarCotizacion = (value) => {
   if (value.nombre !== null && value.apellido !== null && value.edad !== null && value.matricula !== null && value.tipo !== null && value.dias !== null) {
-  const nuevoItem = {
-    id: listaCotizacion.value.length + 1,
-    cliente: new Persona(model.value.nombre, model.value.apellido, model.value.edad),
-    vehiculo: new Veiculo(model.value.tipo, model.value.matricula, model.value.pma, model.value.dias),
-  }
-  listaCotizacion.value.push(nuevoItem)
+  const nuevoItem = new Cotizacion(
+   listaCotizacion.value.length + 1,
+   new Cliente(value.nombre, value.apellido, value.edad),
+   new Vehiculo(value.tipo, value.matricula, value.pma, value.dias),
+   new Usuario('Ventas', '1'),
+   model.value.dias
+  )
+  listaCotizacion.value.push(nuevoItem.getCotizacion())
   }
   model.value = {
     nombre: null,
     apellido: null,
     edad: null,
-    marca: null,
+    pma: null,
     tipo: null,
     matricula: null,
   }
@@ -79,16 +84,16 @@ const agregarCotizacion = (value) => {
         <ul role="list" class="grid gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-16 xl:col-span-2">
           <li v-for="item in listaCotizacion" :key="item.id" class="transition-all">
             <div class="flex items-center gap-x-6">
-              <img class="h-16 w-16 rounded-full" :src="item.vehiculo.getImage()" :alt="item.tipo" />
+              <img class="h-16 w-16 rounded-full" :src="item.imagen" :alt="item.tipo" />
               <div>
-                <h3 class="text-base font-semibold leading-7 tracking-tight text-gray-900">{{ item.cliente.getNombreCompleto() }}
-                  <span class="text-red-300">{{ `${item.vehiculo.matricula}` }}</span>
+                <h3 class="text-base font-semibold leading-7 tracking-tight text-gray-900">{{ item.cliente }}
+                  <span class="text-red-300">{{ `${item.vehiculo}` }}</span>
                 </h3>
                 <p class="text-sm font-semibold leading-6 ">
                   Valor:
-                  <span class="text-indigo-600">{{ ` $${item.vehiculo.getTarifa()} COP ` }}</span>
+                  <span class="text-indigo-600">{{ ` $${item.tarifa} COP ` }}</span>
                   Días:
-                  <span>{{ ` ${item.vehiculo.dias} ` }}</span>
+                  <span>{{ ` ${item.dias} ` }}</span>
                 </p>
               </div>
             </div>
